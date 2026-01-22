@@ -18,111 +18,88 @@
             font-family: 'Roboto Mono', monospace;
         }
 
-        /* --- STYLES D'IMPRESSION CRITIQUES (PDF) --- */
+        /* Styles spécifiques pour l'impression (PDF) */
         @media print {
-            /* Configuration de la page A4 hPaysage */
             @page {
                 size: landscape;
-                margin: 0; /* Supprime les marges blanches du navigateur */
+                margin: 0;
             }
-
             body {
                 background-color: white;
-                margin: 0;
-                padding: 0;
-                /* FORCE L'IMPRESSION DES COULEURS DE FOND ET IMAGES */
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                color-adjust: exact !important;
+                -webkit-print-color-adjust: exact;
             }
-
-            /* Cacher TOUTE l'interface utilisateur */
-            header, .no-print, form, .instructions-box {
+            /* Cacher tout ce qui n'est pas le billet */
+            .no-print {
                 display: none !important;
             }
-
-            /* Cacher les barres de défilement */
-            html, body {
-                overflow: hidden !important;
-                height: 100vh;
-            }
-
-            /* Isoler et centrer le billet */
-            #ticket-wrapper-for-print {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
+            /* Afficher le billet en plein écran */
+            #ticket-container {
                 display: flex !important;
-                flex-direction: column;
                 justify-content: center;
                 align-items: center;
-                background-color: white;
-                z-index: 9999;
+                height: 100vh;
+                width: 100vw;
+                position: absolute;
+                top: 0;
+                left: 0;
+                background: white;
+                padding: 20px;
+                transform: scale(1); /* Ajuster l'échelle si nécessaire */
             }
-
             #ticket-visual {
-                transform: scale(1); /* S'assure que la taille est à 100% */
-                box-shadow: none !important; /* Pas d'ombre sur le PDF */
-                border: 1px solid #e5e7eb; /* Bordure fine propre */
-            }
-
-            /* Afficher le footer de l'agence uniquement sur le PDF */
-            #agency-footer-print {
-                display: block !important;
-                margin-top: 40px;
-                text-align: center;
+                box-shadow: none !important;
+                border: 1px solid #ccc;
                 width: 100%;
+                max-width: 900px;
             }
         }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
 
-    <!-- En-tête de l'application (Masqué à l'impression) -->
-    <header class="bg-indigo-900 text-white p-4 shadow-md no-print flex justify-between items-center z-10 shrink-0">
+    <!-- En-tête de l'application (Non visible à l'impression) -->
+    <header class="bg-indigo-900 text-white p-4 shadow-md no-print flex justify-between items-center z-10">
         <div class="flex items-center gap-3">
             <i class="fas fa-plane-departure text-2xl text-orange-400"></i>
             <div>
                 <h1 class="text-xl font-bold">Abidjan Horizon Voyages</h1>
-                <p class="text-xs text-indigo-200">Générateur de E-Ticket Pro</p>
+                <p class="text-xs text-indigo-200">Plateforme Agent v1.0</p>
             </div>
         </div>
-        <button onclick="handlePrint()" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-bold transition shadow flex items-center gap-2">
-            <i class="fas fa-file-pdf"></i> Télécharger PDF
+        <button onclick="window.print()" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-bold transition shadow flex items-center gap-2">
+            <i class="fas fa-file-pdf"></i> Générer / Imprimer PDF
         </button>
     </header>
 
     <div class="flex flex-1 overflow-hidden relative">
         
-        <!-- Panneau de Gauche : Formulaire (Masqué à l'impression) -->
-        <div class="w-1/3 bg-white border-r border-gray-200 overflow-y-auto p-6 no-print shadow-xl z-10 shrink-0">
-            <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">Informations Billet</h2>
+        <!-- Panneau de Gauche : Formulaire de Saisie -->
+        <div class="w-1/3 bg-white border-r border-gray-200 overflow-y-auto p-6 no-print shadow-xl z-10">
+            <h2 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">Détails du Vol</h2>
             
             <form id="flightForm" class="space-y-4">
                 
                 <!-- Passager -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Nom & Prénoms</label>
-                    <input type="text" id="pName" value="KOUASSI JEAN-MARC" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold bg-gray-50" oninput="updateTicket()">
+                    <label class="block text-sm font-medium text-gray-700">Nom du Passager</label>
+                    <input type="text" id="pName" value="KOUASSI JEAN-MARC" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updateTicket()">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Départ (Ville)</label>
-                        <input type="text" id="origin" value="ABIDJAN (ABJ)" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 uppercase" oninput="updateTicket()">
+                        <input type="text" id="origin" value="ABIDJAN (ABJ)" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" oninput="updateTicket()">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Arrivée (Ville)</label>
-                        <input type="text" id="dest" value="PARIS (CDG)" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 uppercase" oninput="updateTicket()">
+                        <input type="text" id="dest" value="PARIS (CDG)" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" oninput="updateTicket()">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">N° Vol</label>
-                        <input type="text" id="fNum" value="AHV-402" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 uppercase" oninput="updateTicket()">
+                        <label class="block text-sm font-medium text-gray-700">N° de Vol</label>
+                        <input type="text" id="fNum" value="AHV-402" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" oninput="updateTicket()">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Classe</label>
@@ -136,7 +113,7 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Date Départ</label>
+                        <label class="block text-sm font-medium text-gray-700">Date</label>
                         <input type="date" id="fDate" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" onchange="updateTicket()">
                     </div>
                     <div>
@@ -145,230 +122,203 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-2">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Porte</label>
-                        <input type="text" id="gate" value="B4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-center" oninput="updateTicket()">
+                        <input type="text" id="gate" value="B4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" oninput="updateTicket()">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Siège</label>
-                        <input type="text" id="seat" value="12A" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-center" oninput="updateTicket()">
+                        <input type="text" id="seat" value="12A" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" oninput="updateTicket()">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Terminal</label>
-                        <input type="text" id="terminal" value="1" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-center" oninput="updateTicket()">
-                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Prix (FCFA)</label>
+                    <input type="text" id="price" value="450 000 FCFA" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" oninput="updateTicket()">
                 </div>
 
             </form>
 
-            <div class="mt-6 bg-orange-50 p-4 rounded-lg border border-orange-200 instructions-box">
-                <h4 class="text-sm font-bold text-orange-800 mb-2"><i class="fas fa-info-circle"></i> Comment ça marche ?</h4>
-                <ol class="text-xs text-orange-800 list-decimal list-inside space-y-1">
-                    <li>Remplissez les détails à gauche.</li>
-                    <li>Cliquez sur le bouton <strong>"Télécharger PDF"</strong>.</li>
-                    <li>Dans la fenêtre qui s'ouvre, choisissez <strong>"Enregistrer au format PDF"</strong> comme destination.</li>
-                    <li>C'est prêt à être envoyé par email !</li>
-                </ol>
+            <div class="mt-8 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h4 class="text-sm font-bold text-blue-800 mb-2">Instructions</h4>
+                <p class="text-xs text-blue-700">
+                    1. Remplissez les informations.<br>
+                    2. Vérifiez l'aperçu à droite.<br>
+                    3. Cliquez sur "Générer PDF".<br>
+                    4. Dans la fenêtre d'impression, choisissez "Enregistrer au format PDF" pour envoyer au client.
+                </p>
             </div>
         </div>
 
         <!-- Panneau de Droite : Aperçu Visuel -->
-        <div id="preview-area" class="w-2/3 bg-gray-100 flex items-center justify-center p-8 overflow-auto relative">
+        <div id="preview-area" class="w-2/3 bg-gray-100 flex items-center justify-center p-8 overflow-auto">
             
-            <!-- Wrapper spécial pour l'impression -->
-            <div id="ticket-wrapper-for-print" class="flex flex-col items-center justify-center">
+            <!-- Conteneur spécifiquement ciblé pour l'impression -->
+            <div id="ticket-container">
                 
-                <!-- === LE BILLET === -->
-                <div id="ticket-visual" class="bg-white w-[850px] h-[360px] rounded-3xl shadow-2xl overflow-hidden flex relative border border-gray-200">
+                <!-- LE BILLET -->
+                <div id="ticket-visual" class="bg-white w-[850px] h-[350px] rounded-3xl shadow-2xl overflow-hidden flex relative">
                     
                     <!-- Bordure gauche décorative -->
-                    <div class="w-5 h-full bg-gradient-to-b from-orange-400 to-orange-600 flex flex-col items-center justify-center gap-2">
-                         <div class="h-2 w-2 rounded-full bg-white/30"></div>
-                         <div class="h-2 w-2 rounded-full bg-white/30"></div>
-                         <div class="h-full w-[1px] bg-white/20"></div>
-                         <div class="h-2 w-2 rounded-full bg-white/30"></div>
-                    </div>
+                    <div class="w-4 h-full bg-orange-500"></div>
                     
-                    <!-- PARTIE PRINCIPALE (GAUCHE) -->
-                    <div class="flex-1 p-6 flex flex-col relative">
-                        <!-- Watermark -->
-                        <i class="fas fa-plane-departure absolute text-gray-50 text-[250px] top-10 right-20 z-0 transform -rotate-12 opacity-50"></i>
+                    <!-- PARTIE PRINCIPALE -->
+                    <div class="w-3/4 p-6 flex flex-col relative">
+                        <!-- Watermark de fond -->
+                        <i class="fas fa-globe-africa absolute text-gray-100 text-[200px] -bottom-10 -right-10 z-0"></i>
 
-                        <!-- Header -->
-                        <div class="flex justify-between items-start border-b border-gray-200 pb-3 mb-4 z-10 relative">
-                            <div class="flex items-center gap-4">
-                                <!-- Logo Agence -->
-                                <div class="w-14 h-14 bg-indigo-900 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">
-                                    <i class="fas fa-paper-plane"></i>
+                        <!-- Header Billet -->
+                        <div class="flex justify-between items-start border-b-2 border-dashed border-gray-300 pb-4 mb-4 z-10">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-indigo-900 rounded-full flex items-center justify-center text-white text-2xl">
+                                    <i class="fas fa-plane"></i>
                                 </div>
                                 <div>
-                                    <h2 class="text-2xl font-black text-indigo-900 leading-none tracking-tight">ABIDJAN HORIZON</h2>
-                                    <div class="flex items-center gap-2 mt-1">
-                                        <span class="text-xs font-bold text-white bg-orange-500 px-2 py-0.5 rounded uppercase tracking-widest">Voyages</span>
-                                        <span class="text-[10px] text-gray-400 font-medium">IATA: 225-AHV</span>
-                                    </div>
+                                    <h2 class="text-2xl font-bold text-indigo-900 leading-none">ABIDJAN HORIZON</h2>
+                                    <span class="text-sm font-bold text-orange-500 tracking-widest">VOYAGES</span>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Carte d'embarquement</p>
-                                <p class="text-xs text-indigo-600 font-medium mt-1">Électronique / E-Ticket</p>
+                                <p class="text-xs text-gray-500 font-bold uppercase">Carte d'embarquement</p>
+                                <p class="text-xs text-gray-400">Agence Plateau, Imm. Alpha</p>
                             </div>
                         </div>
 
-                        <!-- Info Passager & Vol -->
-                        <div class="grid grid-cols-3 gap-6 mb-5 z-10 relative">
-                            <div class="col-span-1">
-                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1">Passager</p>
-                                <p class="text-lg font-bold text-gray-800 truncate border-l-2 border-orange-500 pl-2 leading-none py-1" id="disp-name">KOUASSI JEAN-MARC</p>
+                        <!-- Info Vol -->
+                        <div class="grid grid-cols-3 gap-6 mb-4 z-10 relative">
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase font-bold">Passager</p>
+                                <p class="text-lg font-bold text-gray-800 truncate" id="disp-name">KOUASSI JEAN-MARC</p>
                             </div>
                             <div>
-                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1">Vol N°</p>
-                                <p class="text-lg font-black text-indigo-900 ticket-font" id="disp-fnum">AHV-402</p>
+                                <p class="text-xs text-gray-400 uppercase font-bold">Vol</p>
+                                <p class="text-lg font-bold text-indigo-900" id="disp-fnum">AHV-402</p>
                             </div>
-                             <div>
-                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1">Classe</p>
-                                <p class="text-sm font-bold text-white bg-indigo-900 px-3 py-1 rounded-full inline-block shadow-sm" id="disp-class">ECONOMIQUE</p>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase font-bold">Classe</p>
+                                <p class="text-lg font-bold text-gray-800" id="disp-class">ECONOMIQUE</p>
                             </div>
                         </div>
 
-                        <!-- Trajet (Visuel Central) -->
-                        <div class="flex justify-between items-center mb-6 z-10 relative bg-gradient-to-r from-gray-50 to-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                            <div class="text-center w-1/4">
-                                <p class="text-4xl font-black text-indigo-900 tracking-tighter" id="disp-origin-code">ABJ</p>
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1" id="disp-origin-full">ABIDJAN</p>
+                        <!-- Route (Gros) -->
+                        <div class="flex justify-between items-center mb-6 z-10 relative bg-gray-50 p-3 rounded-lg border border-gray-100">
+                            <div class="text-center w-1/3">
+                                <p class="text-3xl font-bold text-indigo-900" id="disp-origin-code">ABJ</p>
+                                <p class="text-xs text-gray-500" id="disp-origin-full">ABIDJAN</p>
                             </div>
-                            
-                            <div class="flex-1 flex flex-col items-center justify-center px-4 relative">
-                                <div class="flex justify-between w-full text-[10px] text-gray-400 font-mono mb-1">
-                                    <span>Départ</span>
-                                    <span>Durée: 06h20</span>
-                                    <span>Arrivée</span>
+                            <div class="flex-1 flex flex-col items-center justify-center px-4">
+                                <i class="fas fa-plane text-orange-500 text-xl transform rotate-90 mb-1"></i>
+                                <div class="w-full h-0.5 bg-gray-300 relative">
+                                    <div class="absolute w-2 h-2 bg-indigo-900 rounded-full left-0 -top-[3px]"></div>
+                                    <div class="absolute w-2 h-2 bg-indigo-900 rounded-full right-0 -top-[3px]"></div>
                                 </div>
-                                <div class="w-full h-1 bg-gray-200 rounded-full relative overflow-hidden">
-                                     <div class="absolute top-0 left-0 h-full w-1/2 bg-orange-400"></div>
-                                </div>
-                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-1 rounded-full border border-gray-200 shadow-sm">
-                                    <i class="fas fa-plane text-indigo-900 text-lg transform rotate-45"></i>
-                                </div>
+                                <p class="text-xs text-gray-400 mt-1">Direct</p>
                             </div>
-                            
-                            <div class="text-center w-1/4">
-                                <p class="text-4xl font-black text-indigo-900 tracking-tighter" id="disp-dest-code">CDG</p>
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1" id="disp-dest-full">PARIS</p>
+                            <div class="text-center w-1/3">
+                                <p class="text-3xl font-bold text-indigo-900" id="disp-dest-code">CDG</p>
+                                <p class="text-xs text-gray-500" id="disp-dest-full">PARIS</p>
                             </div>
                         </div>
 
                         <!-- Footer Details -->
-                        <div class="mt-auto flex justify-between items-end z-10 bg-indigo-50/50 p-3 rounded-xl border border-indigo-50">
-                            <div class="flex gap-8">
-                                <div>
-                                    <p class="text-[10px] text-gray-400 uppercase font-bold">Date</p>
-                                    <p class="text-base font-bold text-gray-800 ticket-font" id="disp-date">24/12/2025</p>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] text-gray-400 uppercase font-bold">Heure</p>
-                                    <p class="text-base font-bold text-gray-800 ticket-font" id="disp-time">23:45</p>
-                                </div>
-                                 <div>
-                                    <p class="text-[10px] text-gray-400 uppercase font-bold">Term.</p>
-                                    <p class="text-base font-bold text-gray-800 ticket-font" id="disp-terminal">1</p>
-                                </div>
+                        <div class="mt-auto grid grid-cols-4 gap-2 z-10">
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Date</p>
+                                <p class="font-bold text-gray-800" id="disp-date">24/12/2025</p>
                             </div>
-                            <div class="flex gap-4">
-                                <div class="text-center">
-                                    <p class="text-[10px] text-gray-400 uppercase font-bold">Porte</p>
-                                    <p class="text-2xl font-black text-orange-600 leading-none" id="disp-gate">B4</p>
-                                </div>
-                                <div class="text-center bg-indigo-900 text-white px-4 py-1 rounded-lg shadow-md">
-                                    <p class="text-[8px] uppercase font-bold opacity-70">Siège</p>
-                                    <p class="text-2xl font-bold leading-none ticket-font" id="disp-seat">12A</p>
-                                </div>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Heure</p>
+                                <p class="font-bold text-gray-800" id="disp-time">23:45</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Porte</p>
+                                <p class="font-bold text-orange-600 text-xl" id="disp-gate">B4</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase">Siège</p>
+                                <p class="font-bold text-indigo-900 text-xl bg-indigo-100 inline-block px-2 rounded" id="disp-seat">12A</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- LIGNE DE DECOUPE -->
-                    <div class="w-[1px] h-full border-r-2 border-dashed border-gray-300 relative flex flex-col justify-between py-3 z-20 bg-white">
-                        <div class="w-6 h-6 bg-f3f4f6 rounded-full -ml-[13px] -mt-5"></div> <!-- Notch haut (couleur de fond page) -->
-                        <i class="fas fa-scissors text-gray-300 text-xs bg-white py-2 -ml-2"></i>
-                        <div class="w-6 h-6 bg-f3f4f6 rounded-full -ml-[13px] -mb-5"></div> <!-- Notch bas -->
+                    <div class="w-[2px] h-full bg-transparent border-r-2 border-dashed border-gray-300 relative flex flex-col justify-between py-2">
+                        <div class="w-4 h-4 bg-gray-100 rounded-full -ml-[9px] -mt-4 shadow-inner"></div>
+                        <div class="w-4 h-4 bg-gray-100 rounded-full -ml-[9px] -mb-4 shadow-inner"></div>
                     </div>
 
-                    <!-- PARTIE DETACHABLE (COUPON) -->
-                    <div class="w-[240px] bg-gray-50 p-5 flex flex-col relative shrink-0">
-                         <!-- Header Stub -->
-                        <div class="flex justify-between items-center border-b border-gray-200 pb-2 mb-3">
-                            <i class="fas fa-paper-plane text-indigo-900 text-xl"></i>
-                            <span class="text-xs font-bold text-orange-500 uppercase">Coupon</span>
+                    <!-- PARTIE DETACHABLE (STUB) -->
+                    <div class="w-1/4 bg-indigo-50 p-4 flex flex-col justify-between relative">
+                        <div class="text-center border-b border-indigo-200 pb-2">
+                            <h3 class="font-bold text-indigo-900">BOARDING PASS</h3>
+                            <p class="text-xs text-indigo-400">Coupon Passager</p>
                         </div>
 
-                        <div class="space-y-4 flex-1">
+                        <div class="space-y-3">
                             <div>
-                                <p class="text-[9px] text-gray-400 uppercase tracking-wide">Nom Passager</p>
+                                <p class="text-[10px] text-gray-500 uppercase">Passager</p>
                                 <p class="text-sm font-bold text-gray-800 truncate" id="stub-name">KOUASSI J.</p>
                             </div>
-                            
                             <div class="flex justify-between">
                                 <div>
-                                    <p class="text-[9px] text-gray-400 uppercase tracking-wide">Vol</p>
-                                    <p class="text-sm font-bold text-indigo-900" id="stub-fnum">AHV-402</p>
+                                    <p class="text-[10px] text-gray-500 uppercase">Vol</p>
+                                    <p class="text-sm font-bold text-gray-800" id="stub-fnum">AHV-402</p>
                                 </div>
-                                <div class="text-right">
-                                    <p class="text-[9px] text-gray-400 uppercase tracking-wide">Date</p>
+                                <div>
+                                    <p class="text-[10px] text-gray-500 uppercase">Date</p>
                                     <p class="text-sm font-bold text-gray-800" id="stub-date">24/12</p>
                                 </div>
                             </div>
-
-                            <div class="bg-white p-2 rounded border border-gray-200">
-                                <div class="flex justify-between items-end">
-                                    <div>
-                                        <p class="text-[9px] text-gray-400 uppercase">Porte</p>
-                                        <p class="text-lg font-bold text-gray-800" id="stub-gate">B4</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-[9px] text-gray-400 uppercase">Siège</p>
-                                        <p class="text-xl font-black text-indigo-900" id="stub-seat">12A</p>
-                                    </div>
+                            <div class="flex justify-between">
+                                <div>
+                                    <p class="text-[10px] text-gray-500 uppercase">Siège</p>
+                                    <p class="text-lg font-bold text-indigo-900" id="stub-seat">12A</p>
                                 </div>
-                                <div class="mt-1 pt-1 border-t border-dashed border-gray-200 text-center">
-                                    <p class="text-[9px] text-gray-400 uppercase">Heure</p>
+                                <div>
+                                    <p class="text-[10px] text-gray-500 uppercase">Heure</p>
                                     <p class="text-sm font-bold text-gray-800" id="stub-time">23:45</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Barcode Area -->
-                        <div class="mt-auto pt-3 text-center">
-                            <div class="h-10 w-full bg-gray-800 flex justify-center items-center overflow-hidden rounded-sm px-1">
-                                <!-- Fake barcode lines purely with CSS/HTML divs for sharpness -->
-                                <div class="flex w-full h-full justify-between gap-[1px]">
-                                    <div class="w-[2px] bg-white h-full"></div>
-                                    <div class="w-[1px] bg-white h-full"></div>
-                                    <div class="w-[4px] bg-white h-full"></div>
-                                    <div class="w-[1px] bg-white h-full"></div>
-                                    <div class="w-[3px] bg-white h-full"></div>
-                                    <div class="w-[1px] bg-white h-full"></div>
-                                    <div class="w-[2px] bg-white h-full"></div>
-                                     <div class="w-[5px] bg-white h-full"></div>
-                                    <div class="w-[1px] bg-white h-full"></div>
-                                     <div class="w-[2px] bg-white h-full"></div>
-                                      <div class="w-[1px] bg-white h-full"></div>
-                                    <div class="w-[3px] bg-white h-full"></div>
-                                </div>
-                            </div>
-                            <p class="text-[8px] font-mono mt-1 text-gray-400 tracking-wider" id="ticket-id">AHV-9988776655</p>
+                        <!-- Code Barre Simulé -->
+                        <div class="mt-4 pt-2 border-t border-indigo-200 text-center">
+                            <!-- SVG Barcode placeholder -->
+                            <svg class="w-full h-12" viewBox="0 0 100 30" preserveAspectRatio="none">
+                                <rect x="0" y="0" width="2" height="30" fill="#333"></rect>
+                                <rect x="4" y="0" width="1" height="30" fill="#333"></rect>
+                                <rect x="7" y="0" width="3" height="30" fill="#333"></rect>
+                                <rect x="12" y="0" width="1" height="30" fill="#333"></rect>
+                                <rect x="15" y="0" width="2" height="30" fill="#333"></rect>
+                                <rect x="19" y="0" width="4" height="30" fill="#333"></rect>
+                                <rect x="25" y="0" width="1" height="30" fill="#333"></rect>
+                                <rect x="28" y="0" width="1" height="30" fill="#333"></rect>
+                                <rect x="31" y="0" width="3" height="30" fill="#333"></rect>
+                                <rect x="36" y="0" width="2" height="30" fill="#333"></rect>
+                                <rect x="40" y="0" width="1" height="30" fill="#333"></rect>
+                                <rect x="44" y="0" width="2" height="30" fill="#333"></rect>
+                                <rect x="50" y="0" width="3" height="30" fill="#333"></rect>
+                                <rect x="55" y="0" width="1" height="30" fill="#333"></rect>
+                                <rect x="60" y="0" width="2" height="30" fill="#333"></rect>
+                                <rect x="65" y="0" width="4" height="30" fill="#333"></rect>
+                                <rect x="75" y="0" width="1" height="30" fill="#333"></rect>
+                                <rect x="80" y="0" width="2" height="30" fill="#333"></rect>
+                                <rect x="85" y="0" width="1" height="30" fill="#333"></rect>
+                                <rect x="90" y="0" width="3" height="30" fill="#333"></rect>
+                                <rect x="95" y="0" width="2" height="30" fill="#333"></rect>
+                            </svg>
+                            <p class="text-[8px] tracking-widest mt-1 text-gray-500 ticket-font" id="ticket-id">AHV-9988776655</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Footer Agence (Visible uniquement à l'impression grâce au CSS) -->
-                <div id="agency-footer-print" class="hidden text-center font-sans">
-                    <h3 class="text-indigo-900 font-bold text-lg uppercase tracking-widest mb-1">Abidjan Horizon Voyages</h3>
-                    <div class="w-16 h-1 bg-orange-500 mx-auto mb-3"></div>
-                    <p class="text-gray-600 text-sm">Immeuble Alpha, Avenue Chardy, Le Plateau, Abidjan, Côte d'Ivoire</p>
-                    <p class="text-gray-600 text-sm font-medium">Tél: <span class="text-indigo-900">+225 27 22 55 44 00</span> | Email: <span class="text-indigo-900">reservation@abidjan-horizon.ci</span></p>
-                    <p class="text-xs text-gray-400 mt-4">Ce document est généré par la plateforme agent. Merci de votre confiance.</p>
+                <!-- Footer Agence (S'affiche sous le billet lors de l'impression) -->
+                <div class="hidden print:block text-center mt-8 text-gray-500 text-sm">
+                    <p class="font-bold">Abidjan Horizon Voyages</p>
+                    <p>Immeuble Alpha, Avenue Chardy, Le Plateau, Abidjan, Côte d'Ivoire</p>
+                    <p>Tel: +225 27 22 55 44 00 | Email: reservation@abidjan-horizon.ci</p>
+                    <p class="text-xs mt-2 italic">Ce document est un billet électronique généré automatiquement.</p>
                 </div>
 
             </div>
@@ -379,17 +329,24 @@
         // Initialiser la date du jour par défaut
         document.getElementById('fDate').valueAsDate = new Date();
 
+        // Fonction pour extraire le code aéroport (3 premières lettres en majuscule)
         function getAirportCode(str) {
+            // Cherche du texte entre parenthèses ex: ABIDJAN (ABJ) -> ABJ
             const match = str.match(/\(([^)]+)\)/);
             if (match) return match[1].toUpperCase();
+            
+            // Sinon prend les 3 premières lettres
             return str.substring(0, 3).toUpperCase();
         }
 
+        // Fonction pour nettoyer le nom de la ville
         function getCityName(str) {
             return str.split('(')[0].trim().toUpperCase();
         }
 
+        // Fonction principale de mise à jour
         function updateTicket() {
+            // Récupération des valeurs
             const name = document.getElementById('pName').value || "NOM PASSAGER";
             const origin = document.getElementById('origin').value || "VILLE DEPART";
             const dest = document.getElementById('dest').value || "VILLE ARRIVEE";
@@ -399,22 +356,22 @@
             const fTime = document.getElementById('fTime').value;
             const gate = document.getElementById('gate').value;
             const seat = document.getElementById('seat').value;
-            const terminal = document.getElementById('terminal').value;
 
-            // Date formatting
+            // Formatage de la date (JJ/MM/AAAA)
             let formattedDate = "DATE";
             let shortDate = "DATE";
             if (fDate) {
                 const d = new Date(fDate);
-                formattedDate = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                formattedDate = d.toLocaleDateString('fr-FR');
                 shortDate = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
             }
 
-            // Main Ticket Updates
+            // Mise à jour du Billet Principal
             document.getElementById('disp-name').textContent = name.toUpperCase();
             document.getElementById('disp-fnum').textContent = fNum.toUpperCase();
             document.getElementById('disp-class').textContent = fClass;
             
+            // Codes aéroports et villes
             document.getElementById('disp-origin-code').textContent = getAirportCode(origin);
             document.getElementById('disp-origin-full').textContent = getCityName(origin);
             
@@ -425,33 +382,20 @@
             document.getElementById('disp-time').textContent = fTime;
             document.getElementById('disp-gate').textContent = gate;
             document.getElementById('disp-seat').textContent = seat;
-            document.getElementById('disp-terminal').textContent = terminal;
 
-            // Stub Updates
-            document.getElementById('stub-name').textContent = name.length > 15 ? name.substring(0, 15) + '...' : name.toUpperCase();
+            // Mise à jour du Coupon (Partie droite)
+            document.getElementById('stub-name').textContent = name.split(' ')[0].toUpperCase() + '...'; // Juste le premier nom pour le stub
             document.getElementById('stub-fnum').textContent = fNum.toUpperCase();
             document.getElementById('stub-date').textContent = shortDate;
             document.getElementById('stub-time').textContent = fTime;
             document.getElementById('stub-seat').textContent = seat;
-            document.getElementById('stub-gate').textContent = gate;
 
-            // ID Generation
-            if(!window.ticketIdGenerated) {
-                 const randomId = "AHV-" + Math.floor(Math.random() * 10000000000);
-                 document.getElementById('ticket-id').textContent = randomId;
-                 window.ticketIdGenerated = true;
-            }
+            // Générer un ID de billet aléatoire basé sur le vol
+            const randomId = "AHV-" + Math.floor(Math.random() * 1000000000);
+            document.getElementById('ticket-id').textContent = randomId;
         }
 
-        // Gestion améliorée de l'impression
-        function handlePrint() {
-            // Un petit timeout permet de s'assurer que le rendu DOM est fini avant de lancer le dialogue
-            setTimeout(() => {
-                window.print();
-            }, 100);
-        }
-
-        // Appel initial
+        // Premier appel pour initialiser
         updateTicket();
     </script>
 </body>
