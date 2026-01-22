@@ -22,8 +22,9 @@
         }
 
         .barcode {
-            font-family: 'Libre Barcode 39', cursive;
-            font-size: 36px;
+            /* Correction de l'erreur : espace au lieu du + */
+            font-family: 'Libre Barcode 39', cursive; 
+            font-size: 40px; /* Légèrement agrandi pour être bien net */
             line-height: 1;
             transform: scaleY(1.5);
             transform-origin: center bottom; 
@@ -33,69 +34,69 @@
             white-space: nowrap;
             text-align: center;
             margin-bottom: 5px;
+            color: #1e1e1e; /* Noir presque pur pour bon contraste */
         }
 
-        /* --- MODE IMPRESSION (Correction Radicale) --- */
+        /* --- MODE IMPRESSION (Correction Flux Naturel) --- */
         @media print {
             @page {
-                size: landscape; /* Force l'orientation paysage */
-                margin: 0;       /* Supprime les marges du navigateur */
+                size: landscape;
+                margin: 0;
             }
 
-            /* 1. On cache TOUT par défaut */
-            body * {
-                visibility: hidden;
+            /* 1. Cacher l'interface proprement */
+            header, #sidebar, .no-print {
+                display: none !important;
             }
 
-            /* 2. On réinitialise le body pour qu'il ne bloque pas le flux */
-            body {
+            /* 2. Réinitialiser les conteneurs principaux pour permettre le flux */
+            body, #main-layout, #preview-area {
+                display: block !important;
+                position: static !important;
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                background: white !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                background-color: white !important;
-                overflow: visible !important;
+            }
+
+            /* 3. Conteneur des billets : prend toute la largeur */
+            #ticket-container {
+                display: block !important;
+                position: static !important;
+                width: 100% !important;
                 height: auto !important;
             }
 
-            /* 3. On rend visible UNIQUEMENT le conteneur des billets et son contenu */
-            #ticket-container, #ticket-container * {
-                visibility: visible;
-            }
-
-            /* 4. On positionne le conteneur en absolu tout en haut pour écraser le reste */
-            #ticket-container {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                margin: 0;
-                padding: 0;
-                background: white; /* Fond blanc propre */
-            }
-
-            /* 5. Gestion des pages individuelles (1 billet = 1 page) */
+            /* 4. Chaque billet = 1 page flex centrée */
             .ticket-page-wrapper {
-                width: 100vw;       /* Largeur totale de la feuille */
-                height: 100vh;      /* Hauteur totale de la feuille */
+                width: 100vw;
+                height: 100vh;
                 display: flex !important;
-                justify-content: center; /* Centrage horizontal */
-                align-items: center;     /* Centrage vertical */
-                page-break-after: always; /* Saut de page APRÈS chaque billet */
-                break-after: page;        /* Syntaxe moderne */
-                padding: 0;
-                margin: 0;
+                justify-content: center;
+                align-items: center;
+                page-break-after: always;
+                break-after: page;
+                margin: 0 !important;
+                padding: 0 !important;
             }
 
-            /* Pas de saut de page après le dernier billet pour éviter une page blanche */
-            .ticket-page-wrapper:last-child {
-                page-break-after: avoid;
-                break-after: avoid;
+            /* 5. GESTION DU RETOUR : Cacher impérativement si classe 'hidden' présente */
+            .ticket-page-wrapper.hidden {
+                display: none !important;
             }
 
-            /* Ajustements visuels pour l'impression */
+            /* 6. Pas de saut de page après le dernier billet visible */
+            .ticket-page-wrapper:not(.hidden):last-of-type {
+                page-break-after: auto;
+                break-after: auto;
+            }
+
+            /* 7. Styles visuels propres à l'impression */
             #ticket-visual-1, #ticket-visual-2 {
-                border: none !important; /* Pas de bordure grise moche à l'impression */
-                box-shadow: none !important; /* Pas d'ombre portée */
-                /* Force l'impression des couleurs de fond (Chrome/Safari) */
+                border: 1px solid #ddd !important;
+                box-shadow: none !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -110,7 +111,7 @@
             <i class="fas fa-plane-departure text-2xl text-orange-400"></i>
             <div>
                 <h1 class="text-xl font-bold">Abidjan Horizon Voyages</h1>
-                <p class="text-xs text-indigo-200">Plateforme Agent v1.8 (Print Master)</p>
+                <p class="text-xs text-indigo-200">Plateforme Agent v2.0 (Barcode Fixed)</p>
             </div>
         </div>
         <button onclick="window.print()" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-bold transition shadow flex items-center gap-2">
