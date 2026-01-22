@@ -21,13 +21,19 @@
             font-family: 'Roboto Mono', monospace;
         }
 
-        /* Classe spécifique pour le code-barres */
+        /* Classe spécifique pour le code-barres (Ajustée pour remplir parfaitement) */
         .barcode {
             font-family: 'Libre Barcode 39', cursive;
-            font-size: 45px;
+            font-size: 36px; /* Taille optimale */
             line-height: 1;
-            transform: scaleY(1.2);
-            display: inline-block;
+            transform: scaleY(1.5); /* Hauteur réaliste */
+            transform-origin: center bottom; 
+            display: block;
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-align: center;
+            margin-bottom: 5px;
         }
 
         /* --- STYLES D'IMPRESSION (PDF) --- */
@@ -87,7 +93,7 @@
             <i class="fas fa-plane-departure text-2xl text-orange-400"></i>
             <div>
                 <h1 class="text-xl font-bold">Abidjan Horizon Voyages</h1>
-                <p class="text-xs text-indigo-200">Plateforme Agent v1.4 (Full Name ID)</p>
+                <p class="text-xs text-indigo-200">Plateforme Agent v1.6 (Barcode Adjusted)</p>
             </div>
         </div>
         <button onclick="window.print()" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-bold transition shadow flex items-center gap-2">
@@ -242,7 +248,6 @@
                             <div class="grid grid-cols-4 gap-4 mb-4 z-10 relative items-end">
                                 <div class="col-span-2">
                                     <p class="text-xs text-gray-400 uppercase font-bold">Passager</p>
-                                    <!-- Suppression de truncate, ajout de break-words et leading-tight -->
                                     <p class="text-xl font-black text-gray-900 leading-tight break-words uppercase" id="disp-name-1">NOM PASSAGER</p>
                                 </div>
                                 <div>
@@ -312,7 +317,6 @@
                             <div class="space-y-3">
                                 <div>
                                     <p class="text-[10px] text-gray-500 uppercase">Passager</p>
-                                    <!-- Suppression truncate sur le stub également -->
                                     <p class="text-xs font-bold text-gray-900 leading-tight break-words uppercase" id="stub-name-1">NOM P.</p>
                                 </div>
                                 <div class="flex justify-between">
@@ -338,7 +342,7 @@
                             </div>
 
                             <!-- REAL BARCODE SECTION -->
-                            <div class="mt-auto pt-2 border-t border-indigo-200 text-center">
+                            <div class="mt-auto pt-2 border-t border-indigo-200 text-center overflow-hidden">
                                 <p id="barcode-visual-1" class="barcode text-gray-800">*AHV-402*</p>
                                 <p class="text-[8px] tracking-widest text-gray-500 ticket-font -mt-1" id="ticket-id-1">ID-001</p>
                             </div>
@@ -465,7 +469,7 @@
                             </div>
 
                             <!-- REAL BARCODE SECTION -->
-                            <div class="mt-auto pt-2 border-t border-indigo-200 text-center">
+                            <div class="mt-auto pt-2 border-t border-indigo-200 text-center overflow-hidden">
                                 <p id="barcode-visual-2" class="barcode text-gray-800">*AHV-403*</p>
                                 <p class="text-[8px] tracking-widest text-gray-500 ticket-font -mt-1" id="ticket-id-2">ID-002</p>
                             </div>
